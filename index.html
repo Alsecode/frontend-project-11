@@ -12,20 +12,21 @@
                 <div class="col-md-10 col-lg-8 mx-auto text-white">
                     <h1 class="display-3 mb-0">RSS агрегатор</h1>
                     <p class="lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
-                    <form action class="form text-body">
+                    <form action class="form text-body" id="form">
                         <div class="row">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input autofocus required autocomplete="off" class="form-control w-100" id="inputRSS" placeholder="Ссылка RSS">
+                                    <input autofocus required autocomplete="off" class="form-control w-100" id="inputRSS" name='inputRSS' placeholder="Ссылка RSS">
                                     <label for="inputRSS">Ссылка RSS</label>
                                 </div>
                             </div>
                             <div class="col-auto">
-                                <button type="submit" class="h-100 btn btn-lg btn-primary px-sm-5">Добавить</button>
+                                <button type="submit" class="h-100 btn btn-lg btn-primary px-sm-5" id="addButton">Добавить</button>
                              </div>
                         </div>
                     </form>
                     <p class="mt-2 mb-0 text-secondary">Пример: https://ru.hexlet.io/lessons.rss</p>
+                    <p class="feedback m-0 position-absolute small text-danger"></p>
             </div> 
         </div>
         </div>
