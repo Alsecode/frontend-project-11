@@ -14,6 +14,8 @@ export default {
       errors: {
         url: 'Ссылка должна быть валидным URL',
         existingUrl: 'RSS уже существует',
+        notValidRss: 'Ресурс не содержит валидный RSS',
+        network: 'Ошибка сети',
       },
     },
   },

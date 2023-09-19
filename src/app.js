@@ -1,7 +1,8 @@
 import i18next from 'i18next';
 import * as yup from 'yup';
-import resources from './locales/index';
+import resources from './locales/init';
 import watch from './view';
+import { downloadRSS, parseRSS, addRSS } from './rss-functions';
 
 export default async () => {
   const elements = {
@@ -9,6 +10,8 @@ export default async () => {
     input: document.querySelector('#inputRSS'),
     button: document.querySelector('#addButton'),
     feedback: document.querySelector('.feedback'),
+    postsContainer: document.querySelector('#posts'),
+    feedsContainer: document.querySelector('#feeds'),
   };
 
   const defaultLang = 'ru';
@@ -19,11 +22,15 @@ export default async () => {
       valid: false,
       error: '',
     },
+    validatedLinks: [],
     feeds: [],
     posts: [],
   };
 
   yup.setLocale({
+    mixed: {
+      notOneOf: () => ({ key: 'form.errors.existingUrl' }),
+    },
     string: {
       url: () => ({ key: 'form.errors.url' }),
     },
@@ -39,31 +46,56 @@ export default async () => {
   const watchedState = watch(elements, i18n, state);
   watchedState.form.status = 'filling';
 
-  const schema = yup.object({
-    url: yup.string().url(),
-  });
+  const getSchema = (validatedLinks) => yup.string().required().url().notOneOf(validatedLinks);
 
   elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const currentUrl = formData.get('inputRSS');
 
-    if (watchedState.feeds.map(({ url }) => url).includes(currentUrl)) {
-      watchedState.form.error = 'form.errors.existingUrl';
-      return;
-    }
+    const schema = getSchema(watchedState.validatedLinks);
 
     try {
-      await schema.validate({ url: currentUrl });
+      await schema.validate(currentUrl);
       watchedState.form.status = 'sending';
+      const rss = await downloadRSS(currentUrl);
+      const parsedRSS = parseRSS(rss);
+
+      if (parsedRSS === null) {
+        throw new Error('ParserError');
+      }
+
+      addRSS(parsedRSS, watchedState);
+
       watchedState.form.error = '';
       watchedState.form.valid = true;
-      watchedState.feeds.push({ url: currentUrl });
-    } catch (err) {
-      const message = err.errors.map((errorMessage) => errorMessage.key);
-      watchedState.form.error = message;
+      watchedState.validatedLinks.push(currentUrl);
+
+      watchedState.form.status = 'filling';
+      watchedState.form.valid = false;
+    } catch (error) {
+      switch (error.name) {
+        // Ошибки валидации
+        case 'ValidationError': {
+          const message = error.errors.map((errorMessage) => errorMessage.key);
+          watchedState.form.error = message;
+          break;
+        }
+        // Если ресурс не содержит валидный RSS
+        case 'Error': {
+          watchedState.form.error = 'form.errors.notValidRss';
+          watchedState.form.status = 'filling';
+          break;
+        }
+        // Ошибки сети
+        case 'TypeError': {
+          watchedState.form.error = 'form.errors.network';
+          watchedState.form.status = 'filling';
+          break;
+        }
+        default:
+          throw new Error(`Unknown error: ${error}`);
+      }
     }
-    watchedState.form.status = 'filling';
-    watchedState.form.valid = false;
   });
 };

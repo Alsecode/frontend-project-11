@@ -2,10 +2,10 @@ import onChange from 'on-change';
 
 export default (elements, i18n, state) => {
   const {
-    feedback, input, form, button,
+    feedback, input, form, button, postsContainer, feedsContainer,
   } = elements;
 
-  const handleError = () => {
+  const renderError = () => {
     if (state.form.error === '') {
       input.classList.remove('is-invalid');
       feedback.textContent = '';
@@ -26,7 +26,7 @@ export default (elements, i18n, state) => {
     }
   };
 
-  const statusHandler = (value) => {
+  const disableHandler = (value) => {
     if (value === 'filling') {
       button.disabled = false;
       input.readOnly = false;
@@ -37,16 +37,97 @@ export default (elements, i18n, state) => {
     }
   };
 
+  const buildContainerWithHeader = (title) => {
+    const container = document.createElement('div');
+    const headerBody = document.createElement('div');
+    const headerText = document.createElement('h2');
+    headerText.classList.add('h4', 'p-3');
+    headerText.textContent = title;
+    headerBody.append(headerText);
+
+    container.append(headerBody);
+
+    return container;
+  };
+
+  const renderFeeds = (feeds) => {
+    feedsContainer.innerHTML = '';
+    const container = buildContainerWithHeader(i18n.t('feeds'));
+
+    const contentBody = document.createElement('div');
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group');
+
+    feeds.forEach((feed) => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item', 'border-0');
+
+      const h3 = document.createElement('h3');
+      h3.classList.add('h6', 'm-0');
+      h3.textContent = feed.title;
+
+      const p = document.createElement('p');
+      p.classList.add('small', 'm-0', 'text-secondary');
+      p.textContent = feed.description;
+
+      li.append(h3, p);
+      ul.prepend(li);
+    });
+
+    contentBody.append(ul);
+
+    container.append(contentBody);
+    feedsContainer.append(container);
+  };
+
+  const renderPosts = (posts) => {
+    postsContainer.innerHTML = '';
+    const container = buildContainerWithHeader(i18n.t('posts'));
+
+    const contentBody = document.createElement('div');
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group');
+
+    posts.forEach((post) => {
+      const li = document.createElement('li');
+      li.classList.add('list-group-item', 'd-flex', 'row', 'border-0', 'justify-content-between', 'align-items-start');
+
+      const a = document.createElement('a');
+      a.classList.add('fw-bold', 'col');
+      a.textContent = post.title;
+      a.href = post.link;
+      a.target = '_blank';
+
+      const btn = document.createElement('button');
+      btn.classList.add('col-auto', 'btn', 'btn-sm', 'btn-outline-primary', 'px-auto');
+      btn.textContent = i18n.t('buttons.view');
+
+      li.append(a, btn);
+      ul.prepend(li);
+    });
+
+    contentBody.append(ul);
+
+    container.append(contentBody);
+    postsContainer.append(container);
+  };
+
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.status':
-        statusHandler(value);
+        disableHandler(value);
         break;
       case 'form.error':
-        handleError();
+        renderError();
         break;
       case 'form.valid':
         clearForm(value);
+        break;
+      case 'feeds':
+        renderFeeds(value);
+        break;
+      case 'posts':
+        renderPosts(value);
         break;
       default:
         break;
