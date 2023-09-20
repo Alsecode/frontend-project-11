@@ -3,6 +3,12 @@ import * as yup from 'yup';
 import resources from './locales/init';
 import watch from './view';
 import { downloadRSS, parseRSS, addRSS } from './rss-functions';
+import updateRSS from './updater';
+
+const autoUpdate = (state) => {
+  updateRSS(state);
+  setTimeout(autoUpdate, 5000, state);
+};
 
 export default async () => {
   const elements = {
@@ -36,6 +42,8 @@ export default async () => {
     },
   });
 
+  const getSchema = (validatedLinks) => yup.string().required().url().notOneOf(validatedLinks);
+
   const i18n = i18next.createInstance();
   await i18n.init({
     lng: defaultLang,
@@ -45,8 +53,6 @@ export default async () => {
 
   const watchedState = watch(elements, i18n, state);
   watchedState.form.status = 'filling';
-
-  const getSchema = (validatedLinks) => yup.string().required().url().notOneOf(validatedLinks);
 
   elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -70,6 +76,8 @@ export default async () => {
       watchedState.form.error = '';
       watchedState.form.valid = true;
       watchedState.validatedLinks.push(currentUrl);
+
+      setTimeout(autoUpdate, 5000, watchedState);
 
       watchedState.form.status = 'filling';
       watchedState.form.valid = false;

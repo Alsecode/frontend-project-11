@@ -1,7 +1,7 @@
 import uniqueId from 'lodash/uniqueId.js';
 
 export const downloadRSS = async (url) => {
-  const response = await fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`);
+  const response = await fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`);
 
   if (response.ok) {
     return response.json();
@@ -17,7 +17,7 @@ export const parseRSS = (rss) => {
   return doc.querySelector('channel');
 };
 
-const extractFeed = (channel) => {
+export const extractFeed = (channel) => {
   const titleEl = channel.querySelector('title');
   const descriptionEl = channel.querySelector('description');
 
@@ -28,7 +28,7 @@ const extractFeed = (channel) => {
   return { title, description, id: feedId };
 };
 
-const extractPosts = (channel, feedId) => {
+export const extractPosts = (channel) => {
   const posts = Array.from(channel.querySelectorAll('item')).map((item) => {
     const postTitleEl = item.querySelector('title');
     const postTitle = postTitleEl.textContent;
@@ -45,7 +45,6 @@ const extractPosts = (channel, feedId) => {
       title: postTitle,
       description: postDescription,
       link,
-      feedId,
       id: postId,
     };
 
@@ -59,6 +58,7 @@ export const addRSS = (channel, state) => {
   const feed = extractFeed(channel);
   state.feeds.push(feed);
 
-  const posts = extractPosts(channel, feed.id);
+  const posts = extractPosts(channel)
+    .map((post) => ({ ...post, feedId: feed.id }));
   state.posts.push(...posts);
 };
