@@ -18,6 +18,7 @@ export default async () => {
     feedback: document.querySelector('.feedback'),
     postsContainer: document.querySelector('#posts'),
     feedsContainer: document.querySelector('#feeds'),
+    modalContainer: document.querySelector('#modal'),
   };
 
   const defaultLang = 'ru';
@@ -31,6 +32,7 @@ export default async () => {
     validatedLinks: [],
     feeds: [],
     posts: [],
+    visitedPosts: [],
   };
 
   yup.setLocale({
@@ -53,6 +55,16 @@ export default async () => {
 
   const watchedState = watch(elements, i18n, state);
   watchedState.form.status = 'filling';
+
+  const cb = (e) => {
+    const clickedLink = e.target.href;
+    if (clickedLink) {
+      watchedState.visitedPosts.push(clickedLink);
+    }
+  };
+
+  elements.postsContainer.addEventListener('click', (e) => cb(e));
+  elements.modalContainer.addEventListener('click', (e) => cb(e));
 
   elements.form.addEventListener('submit', async (e) => {
     e.preventDefault();

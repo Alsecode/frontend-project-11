@@ -80,7 +80,8 @@ export default (elements, i18n, state) => {
     feedsContainer.append(container);
   };
 
-  const renderPosts = (posts) => {
+  const renderPosts = () => {
+    const { posts } = state;
     postsContainer.innerHTML = '';
     const container = buildContainerWithHeader(i18n.t('posts'));
 
@@ -93,16 +94,32 @@ export default (elements, i18n, state) => {
       li.classList.add('list-group-item', 'd-flex', 'row', 'border-0', 'justify-content-between', 'align-items-start');
 
       const a = document.createElement('a');
-      a.classList.add('fw-bold', 'col');
+      if (state.visitedPosts.includes(post.link)) {
+        a.classList.add('fw-normal', 'text-secondary', 'col');
+      } else {
+        a.classList.add('fw-bold', 'col');
+      }
       a.textContent = post.title;
-      a.href = post.link;
-      a.target = '_blank';
+      a.setAttribute('href', post.link);
+      a.setAttribute('target', '_blank');
 
-      const btn = document.createElement('button');
-      btn.classList.add('col-auto', 'btn', 'btn-sm', 'btn-outline-primary', 'px-auto');
-      btn.textContent = i18n.t('buttons.view');
+      const viewBtn = document.createElement('button');
+      viewBtn.classList.add('col-auto', 'btn', 'btn-sm', 'btn-outline-primary', 'px-auto');
+      viewBtn.textContent = i18n.t('buttons.view');
+      viewBtn.type = 'button';
+      viewBtn.dataset.bsToggle = 'modal';
+      viewBtn.dataset.bsTarget = '#modal';
 
-      li.append(a, btn);
+      document.querySelector('#closeBtn').textContent = i18n.t('buttons.modalWindow.close');
+      document.querySelector('#readMoreBtn').textContent = i18n.t('buttons.modalWindow.readMore');
+
+      viewBtn.addEventListener('click', () => {
+        document.querySelector('#readMoreBtn').href = post.link;
+        document.querySelector('.modal-title').textContent = post.title;
+        document.querySelector('.modal-body').textContent = post.description;
+      });
+
+      li.append(a, viewBtn);
       ul.prepend(li);
     });
 
@@ -127,7 +144,10 @@ export default (elements, i18n, state) => {
         renderFeeds(value);
         break;
       case 'posts':
-        renderPosts(value);
+        renderPosts();
+        break;
+      case 'visitedPosts':
+        renderPosts();
         break;
       default:
         break;
