@@ -91,13 +91,13 @@ export default (elements, i18n, state) => {
 
     posts.forEach((post) => {
       const li = document.createElement('li');
-      li.classList.add('list-group-item', 'd-flex', 'row', 'border-0', 'justify-content-between', 'align-items-start');
+      li.classList.add('list-group-item', 'd-flex', 'border-0', 'justify-content-between', 'align-items-start');
 
       const a = document.createElement('a');
       if (state.visitedPosts.includes(post.link)) {
-        a.classList.add('fw-normal', 'text-secondary', 'col');
+        a.classList.add('fw-normal', 'text-secondary');
       } else {
-        a.classList.add('fw-bold', 'col');
+        a.classList.add('fw-bold');
       }
       a.textContent = post.title;
       a.setAttribute('href', post.link);
