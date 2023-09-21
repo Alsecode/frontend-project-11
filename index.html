@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Webpack App</title>
     </head>
-    <body>
+    <body class="min-vh-100 d-flex flex-column">
         <header>
         <div class="container-fluid bg-dark p-5">
             <div class="row text-white">
@@ -47,11 +47,14 @@
           </div>
         </div>
       </div>
-    <main class="container">
-        <div class="row pt-5">
-            <div class="col-8 px-5" id="posts"></div>
-            <div class="col-4" id="feeds"></div>
+    <main class="container flex-grow-1 p-md-5 p-3">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 order-1 px-3" id="posts"></div>
+            <div class="col-lg-4 order-lg-1 px-3" id="feeds"></div>
         </div>
     </main>
     </body>
+    <footer class="footer bg-dark text-white d-flex justify-content-center mt-5">
+        <p class="m-2 fw-light"><a class="text-white no-underline text-decoration-none" href="https://github.com/Alsecode">Makars Arthur</a>, 2023</p>
+    </footer>
 </html>
