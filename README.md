@@ -25,7 +25,7 @@ Build for production:
 $ make build
 ```
 
-### Deploy
+### Deployment on Vercel
 https://alsecode-rss.vercel.app/
 
 ### Examples
